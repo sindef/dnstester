@@ -1,0 +1,28 @@
+name: Security Scan
+
+on:
+  pull_request:
+
+jobs:
+  trufflehog:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run TruffleHog
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: ${{ github.event.pull_request.base.sha }}
+          head: ${{ github.event.pull_request.head.sha }}
+          extra_args: --only-verified
+
+      - name: Check for findings
+        run: |
+          if [ $? -ne 0 ]; then
+            echo "::error::TruffleHog found secrets or credentials. Please review and remove them before merging."
+            exit 1
+          fi
+
