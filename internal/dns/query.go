@@ -14,7 +14,9 @@ import (
 	"github.com/miekg/dns"
 )
 
-// perform a query uing the specified protocol
+// QueryDNS performs a DNS query using the specified protocol (udp, tcp, dot, doh).
+// Uses github.com/miekg/dns for UDP/TCP/DoT and net/http for DoH. Extracts A and AAAA records.
+// ResponseTime is measured in milliseconds.
 func QueryDNS(server types.Server, domain string, protocol string) types.QueryResult {
 	result := types.QueryResult{
 		ServerName:    server.Name,
@@ -56,8 +58,9 @@ func QueryDNS(server types.Server, domain string, protocol string) types.QueryRe
 	return result
 }
 
+// queryUDP performs a DNS query over UDP (port 53). Uses github.com/miekg/dns.
+// Defaults to port 53 if no port is specified in the address.
 func queryUDP(address string, domain string, result *types.QueryResult) error {
-	// Ensure address has port
 	addr := address
 	if !strings.Contains(addr, ":") {
 		addr = net.JoinHostPort(addr, "53")
@@ -93,6 +96,8 @@ func queryUDP(address string, domain string, result *types.QueryResult) error {
 	return nil
 }
 
+// queryTCP performs a DNS query over TCP (port 53). Uses github.com/miekg/dns.
+// Defaults to port 53 if no port is specified in the address.
 func queryTCP(address string, domain string, result *types.QueryResult) error {
 	addr := address
 	if !strings.Contains(addr, ":") {
@@ -129,8 +134,9 @@ func queryTCP(address string, domain string, result *types.QueryResult) error {
 	return nil
 }
 
+// queryDoT performs a DNS query over DNS-over-TLS (port 853). Uses github.com/miekg/dns with tcp-tls.
+// Defaults to port 853 if no port is specified. TLS ServerName is extracted from the address hostname.
 func queryDoT(address string, domain string, result *types.QueryResult) error {
-	// For DoT, we need to use port 853 by default - can be overridden by user
 	addr := address
 	if !strings.Contains(addr, ":") {
 		addr = net.JoinHostPort(addr, "853")
@@ -167,9 +173,10 @@ func queryDoT(address string, domain string, result *types.QueryResult) error {
 	return nil
 }
 
+// queryDoH performs a DNS query over DNS-over-HTTPS using net/http.
+// Automatically constructs the DoH URL: adds https:// prefix if missing and appends /dns-query if needed.
+// Sends DNS message as binary POST with Content-Type: application/dns-message.
 func queryDoH(address string, domain string, result *types.QueryResult) error {
-	// For DoH, we need to construct the proper URL
-	// DoH endpoints typically look like: https://dns.server/dns-query
 	url := address
 	if !strings.HasPrefix(url, "http://") && !strings.HasPrefix(url, "https://") {
 		url = "https://" + url

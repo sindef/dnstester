@@ -10,6 +10,8 @@ import (
 	"dnstester/pkg/types"
 )
 
+// GenerateReport generates a formatted report. Uses text/tabwriter for text format and encoding/csv for CSV.
+// If outputFile is empty, writes to stdout. CSV format uses semicolon-separated IPs.
 func GenerateReport(results []types.QueryResult, outputFile string, csvFormat bool) error {
 	report := &types.Report{
 		Results: results,
@@ -85,6 +87,7 @@ func GenerateReport(results []types.QueryResult, outputFile string, csvFormat bo
 	return nil
 }
 
+// generateCSVReport writes a CSV report using encoding/csv. Response IPs are semicolon-separated.
 func generateCSVReport(writer *os.File, report *types.Report) error {
 	csvWriter := csv.NewWriter(writer)
 	defer csvWriter.Flush()
@@ -134,7 +137,8 @@ func generateCSVReport(writer *os.File, report *types.Report) error {
 	return nil
 }
 
-// CalculateSummary calculates summary statistics from query results
+// CalculateSummary calculates aggregate statistics. Only successful queries are included in timing calculations.
+// MinTime is initialized to -1 to distinguish "no successful queries" from "min time is 0ms".
 func CalculateSummary(results []types.QueryResult) types.Summary {
 	summary := types.Summary{
 		TotalQueries: len(results),

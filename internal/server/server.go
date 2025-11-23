@@ -12,7 +12,8 @@ import (
 	"dnstester/pkg/types"
 )
 
-// StartServer starts the HTTP server
+// StartServer starts an HTTP server using net/http. Registers handlers for WebUI (/) and API endpoints.
+// Blocks until the server stops or encounters an error.
 func StartServer(addr string) error {
 	http.HandleFunc("/", handleIndex)
 	http.HandleFunc("/api/test", handleTest)
@@ -22,7 +23,8 @@ func StartServer(addr string) error {
 	return http.ListenAndServe(addr, nil)
 }
 
-// handleIndex serves the WebUI
+// handleIndex serves the WebUI HTML page. Uses html/template to parse and serve embedded HTML/CSS/JS.
+// Only accepts GET requests.
 func handleIndex(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -572,7 +574,8 @@ type TestRequest struct {
 	Servers []types.Server `json:"servers"`
 }
 
-// handleTest handles the test API endpoint
+// handleTest handles POST requests to /api/test. Accepts JSON with domains and servers, runs DNS queries
+// synchronously, and returns results as JSON. Uses encoding/json for request/response handling.
 func handleTest(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -627,7 +630,7 @@ func handleReport(w http.ResponseWriter, r *http.Request) {
 	http.Error(w, "Not implemented", http.StatusNotImplemented)
 }
 
-// convertResults converts QueryResult to JSON-friendly format
+// convertResults converts QueryResult slices to snake_case JSON format for API responses.
 func convertResults(results []types.QueryResult) []map[string]interface{} {
 	converted := make([]map[string]interface{}, len(results))
 	for i, r := range results {
@@ -645,7 +648,7 @@ func convertResults(results []types.QueryResult) []map[string]interface{} {
 	return converted
 }
 
-// convertSummary converts Summary to JSON-friendly format
+// convertSummary converts Summary to snake_case JSON format for API responses.
 func convertSummary(summary types.Summary) map[string]interface{} {
 	return map[string]interface{}{
 		"total_queries": summary.TotalQueries,

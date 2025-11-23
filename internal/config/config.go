@@ -9,6 +9,8 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+// LoadConfig loads and validates a YAML configuration file using gopkg.in/yaml.v3.
+// Returns an error if the file cannot be read, parsed, or fails validation.
 func LoadConfig(filePath string) (*types.Config, error) {
 	data, err := os.ReadFile(filePath)
 	if err != nil {
@@ -27,7 +29,7 @@ func LoadConfig(filePath string) (*types.Config, error) {
 	return &config, nil
 }
 
-// perform basic validation on the configuration
+// validateConfig validates the configuration structure. Valid protocols are: udp, tcp, dot, doh.
 func validateConfig(config *types.Config) error {
 	if len(config.Domains) == 0 {
 		return fmt.Errorf("no domains defined")
