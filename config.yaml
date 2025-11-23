@@ -1,0 +1,41 @@
+# Global list of domains to test against all servers
+domains:
+  - "github.com"
+  - "quad9.net"
+
+servers:
+  - name: "Anycast Primary"
+    address: "202.142.142.142"
+    protocols:
+      - "udp"
+      - "tcp"
+      - "dot"
+
+  - name: "Anycast Secondary"
+    address: "202.142.142.242"
+    protocols:
+      - "udp"
+      - "tcp"
+      - "dot" ## Should we support this? 
+
+  - name: "Anycast TLS"
+    address: "dns.aussiebroadband.com.au"
+    protocols:
+      - "doh"
+      - "dot"
+
+  - name: "Cloudflare DNS"
+    address: "1.1.1.1"
+    protocols:
+      - "udp"
+      - "tcp"
+      - "dot"
+
+  - name: "Google DNS"
+    address: "8.8.8.8"
+    protocols:
+      - "udp"
+      - "tcp"
+      - "dot"
+
+
