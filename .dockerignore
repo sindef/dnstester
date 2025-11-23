@@ -1,0 +1,12 @@
+.git
+.gitignore
+.gitea
+*.md
+*.yml
+*.yaml
+!config.yaml
+Dockerfile
+Containerfile
+.dockerignore
+.github
+
